@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyTorch Learning Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .lesson-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .lesson-level {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .beginner {
+            background: #e8f5e8;
+            color: #2d5a2d;
+        }
+
+        .intermediate {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .advanced {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .lesson-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .lesson-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .steps-count {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .lesson-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .step-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .step-info {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-buttons button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-buttons button:hover:not(:disabled) {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .nav-buttons button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-button {
+            background: #6c757d !important;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #5a6268 !important;
+            transform: translateY(-2px);
+        }
+
+        .step-content {
+            margin-bottom: 30px;
+        }
+
+        .instruction {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .instruction h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .code-editor {
+            margin-bottom: 20px;
+        }
+
+        .code-editor label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .code-editor textarea {
+            width: 100%;
+            height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .code-editor textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .output-section {
+            margin-top: 20px;
+        }
+
+        .output-box {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #4a5568;
+        }
+
+        .output-box.error {
+            background: #742a2a;
+            border-color: #e53e3e;
+            color: #fed7d7;
+        }
+
+        .output-box.success {
+            background: #2d5a2d;
+            border-color: #38a169;
+            color: #c6f6d5;
+        }
+
+        .feedback {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .hint-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .hint-box.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            padding: 3px;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 20px;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .lesson-content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <h1>🔥 PyTorch Learning Platform</h1>
+                <p>Master PyTorch step by step with guided coding exercises</p>
+            </div>
+
+            <!-- Lessons Overview -->
+            <div v-if="currentView === 'lessons'">
+                <div class="lesson-grid">
+                    <div 
+                        v-for="lesson in lessons" 
+                        :key="lesson.id"
+                        class="lesson-card"
+                        @click="selectLesson(lesson.id)"
+                    >
+                        <div class="lesson-level" :class="lesson.level">
+                            {{ lesson.level.toUpperCase() }}
+                        </div>
+                        <div class="lesson-title">{{ lesson.title }}</div>
+                        <div class="lesson-description">{{ lesson.description }}</div>
+                        <div class="steps-count">{{ lesson.steps_count }} steps</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lesson Content -->
+            <div v-else-if="currentView === 'lesson' && currentLesson">
+                <button class="back-button" @click="backToLessons">
+                    ← Back to Lessons
+                </button>
+
+                <div class="lesson-content">
+                    <!-- Progress Bar -->
+                    <div class="progress-bar">
+                        <div 
+                            class="progress-fill" 
+                            :style="{ width: progressPercentage + '%' }"
+                        >
+                            Step {{ currentStepIndex + 1 }} of {{ currentLesson.steps.length }}
+                        </div>
+                    </div>
+
+                    <!-- Step Navigation -->
+                    <div class="step-navigation">
+                        <div class="step-info">
+                            Lesson: {{ currentLesson.title }}
+                        </div>
+                        <div class="nav-buttons">
+                            <button 
+                                @click="previousStep" 
+                                :disabled="currentStepIndex === 0"
+                            >
+                                Previous
+                            </button>
+                            <button 
+                                @click="nextStep" 
+                                :disabled="currentStepIndex === currentLesson.steps.length - 1"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Current Step Content -->
+                    <div v-if="currentStep" class="step-content">
+                        <div class="instruction">
+                            <h3>📋 Instructions</h3>
+                            <p>{{ currentStep.instruction }}</p>
+                        </div>
+
+                        <!-- Code Editor -->
+                        <div class="code-editor">
+                            <label for="code">Your PyTorch Code:</label>
+                            <textarea 
+                                id="code"
+                                v-model="userCode" 
+                                placeholder="Write your PyTorch code here..."
+                                spellcheck="false"
+                            ></textarea>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" @click="runCode" :disabled="isLoading">
+                                <span v-if="isLoading" class="loading"></span>
+                                {{ isLoading ? 'Running...' : 'Run Code' }}
+                            </button>
+                            
+                            <button class="btn btn-success" @click="checkSolution" :disabled="isLoading">
+                                Check Solution
+                            </button>
+                            
+                            <button class="btn btn-warning" @click="toggleHint">
+                                {{ showHint ? 'Hide Hint' : 'Get Hint' }}
+                            </button>
+                            
+                            <button class="btn btn-secondary" @click="showSolution">
+                                Show Solution
+                            </button>
+                            
+                            <button class="btn btn-secondary" @click="resetCode">
+                                Reset Code
+                            </button>
+                        </div>
+
+                        <!-- Hint Box -->
+                        <div class="hint-box" :class="{ show: showHint }" v-if="currentHint">
+                            <strong>💡 Hint:</strong> {{ currentHint }}
+                        </div>
+
+                        <!-- Feedback -->
+                        <div v-if="feedback" class="feedback" :class="{ correct: feedback.correct, incorrect: !feedback.correct }">
+                            {{ feedback.message }}
+                        </div>
+
+                        <!-- Output Section -->
+                        <div class="output-section" v-if="output !== null">
+                            <h4>Output:</h4>
+                            <div class="output-box" :class="{ error: hasError, success: !hasError && output }">
+                                <div v-if="hasError">
+                                    <strong>Error:</strong> {{ error }}
+                                </div>
+                                <div v-else-if="output">
+                                    {{ output }}
+                                </div>
+                                <div v-else>
+                                    No output generated.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    currentView: 'lessons', // 'lessons' or 'lesson'
+                    lessons: [],
+                    currentLesson: null,
+                    currentStepIndex: 0,
+                    userCode: '',
+                    output: null,
+                    error: null,
+                    hasError: false,
+                    isLoading: false,
+                    feedback: null,
+                    showHint: false,
+                    currentHint: '',
+                    baseUrl: 'http://localhost:5000/api'
+                }
+            },
+
+            computed: {
+                currentStep() {
+                    if (!this.currentLesson || !this.currentLesson.steps) return null;
+                    return this.currentLesson.steps[this.currentStepIndex];
+                },
+
+                progressPercentage() {
+                    if (!this.currentLesson || !this.currentLesson.steps) return 0;
+                    return Math.round(((this.currentStepIndex + 1) / this.currentLesson.steps.length) * 100);
+                }
+            },
+
+            async mounted() {
+                await this.loadLessons();
+            },
+
+            methods: {
+                async loadLessons() {
+                    try {
+                        const response = await axios.get(`${this.baseUrl}/lessons`);
+                        this.lessons = response.data;
+                    } catch (error) {
+                        console.error('Error loading lessons:', error);
+                        alert('Error loading lessons. Please make sure the Flask server is running.');
+                    }
+                },
+
+                async selectLesson(lessonId) {
+                    try {
+                        const response = await axios.get(`${this.baseUrl}/lessons/${lessonId}`);
+                        this.currentLesson = response.data;
+                        this.currentView = 'lesson';
+                        this.currentStepIndex = 0;
+                        this.resetStepData();
+                        this.loadStarterCode();
+                    } catch (error) {
+                        console.error('Error loading lesson:', error);
+                        alert('Error loading lesson.');
+                    }
+                },
+
+                backToLessons() {
+                    this.currentView = 'lessons';
+                    this.currentLesson = null;
+                    this.resetStepData();
+                },
+
+                nextStep() {
+                    if (this.currentStepIndex < this.currentLesson.steps.length - 1) {
+                        this.currentStepIndex++;
+                        this.resetStepData();
+                        this.loadStarterCode();
+                    }
+                },
+
+                previousStep() {
+                    if (this.currentStepIndex > 0) {
+                        this.currentStepIndex--;
+                        this.resetStepData();
+                        this.loadStarterCode();
+                    }
+                },
+
+                loadStarterCode() {
+                    if (this.currentStep && this.currentStep.starter_code) {
+                        this.userCode = this.currentStep.starter_code;
+                    }
+                },
+
+                resetStepData() {
+                    this.output = null;
+                    this.error = null;
+                    this.hasError = false;
+                    this.feedback = null;
+                    this.showHint = false;
+                    this.currentHint = '';
+                },
+
+                resetCode() {
+                    this.loadStarterCode();
+                    this.resetStepData();
+                },
+
+                async runCode() {
+                    if (!this.userCode.trim()) {
+                        alert('Please write some code first!');
+                        return;
+                    }
+
+                    this.isLoading = true;
+                    this.output = null;
+                    this.error = null;
+                    this.hasError = false;
+
+                    try {
+                        const response = await axios.post(`${this.baseUrl}/execute`, {
+                            code: this.userCode
+                        });
+
+                        if (response.data.success) {
+                            this.output = response.data.output || 'Code executed successfully!';
+                            this.hasError = false;
+                        } else {
+                            this.error = response.data.error;
+                            this.hasError = true;
+                            this.output = response.data.output;
+                        }
+                    } catch (error) {
+                        console.error('Error executing code:', error);
+                        this.error = 'Failed to execute code. Please check your connection.';
+                        this.hasError = true;
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                async checkSolution() {
+                    if (!this.userCode.trim()) {
+                        alert('Please write some code first!');
+                        return;
+                    }
+
+                    this.isLoading = true;
+                    this.feedback = null;
+
+                    try {
+                        const response = await axios.post(
+                            `${this.baseUrl}/check-solution/${this.currentLesson.id}/${this.currentStep.id}`,
+                            { code: this.userCode }
+                        );
+
+                        this.feedback = {
+                            correct: response.data.correct,
+                            message: response.data.message
+                        };
+
+                        // If correct and not on last step, suggest moving to next step
+                        if (response.data.correct && this.currentStepIndex < this.currentLesson.steps.length - 1) {
+                            setTimeout(() => {
+                                if (confirm('Great job! Would you like to move to the next step?')) {
+                                    this.nextStep();
+                                }
+                            }, 1500);
+                        }
+                    } catch (error) {
+                        console.error('Error checking solution:', error);
+                        this.feedback = {
+                            correct: false,
+                            message: 'Error checking solution. Please try again.'
+                        };
+                    } finally {
+                        this.isLoading = false;
+                    }
+                },
+
+                async toggleHint() {
+                    if (this.showHint) {
+                        this.showHint = false;
+                        return;
+                    }
+
+                    if (!this.currentHint) {
+                        try {
+                            const response = await axios.get(
+                                `${this.baseUrl}/hint/${this.currentLesson.id}/${this.currentStep.id}`
+                            );
+                            this.currentHint = response.data.hint;
+                        } catch (error) {
+                            console.error('Error getting hint:', error);
+                            this.currentHint = 'Unable to load hint.';
+                        }
+                    }
+
+                    this.showHint = true;
+                },
+
+                async showSolution() {
+                    if (confirm('Are you sure you want to see the solution? Try to solve it yourself first!')) {
+                        try {
+                            const response = await axios.get(
+                                `${this.baseUrl}/solution/${this.currentLesson.id}/${this.currentStep.id}`
+                            );
+                            this.userCode = response.data.solution;
+                            
+                            // Automatically run the solution
+                            await this.runCode();
+                        } catch (error) {
+                            console.error('Error getting solution:', error);
+                            alert('Unable to load solution.');
+                        }
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
