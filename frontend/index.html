@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI/ML Learning Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .module-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .module-card p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .difficulty-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .difficulty-beginner {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .difficulty-intermediate {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .difficulty-advanced {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .lesson-view {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .lesson-header {
+            margin-bottom: 25px;
+        }
+        
+        .lesson-title {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .lesson-content {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #555;
+            margin-bottom: 25px;
+        }
+        
+        .code-section {
+            margin-bottom: 25px;
+        }
+        
+        .code-section h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .code-editor {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .code-editor textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 20px;
+            border: none;
+            background: #2d3748;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+        }
+        
+        .code-display {
+            background: #2d3748;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        
+        .code-display pre {
+            margin: 0;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #333;
+            border: 2px solid #dee2e6;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .output-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .output-section h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .output-text {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+        }
+        
+        .back-btn {
+            margin-bottom: 20px;
+        }
+        
+        .progress-indicator {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 8px;
+            color: #2e7d32;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .modules-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .lesson-view {
+                padding: 20px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1>🚀 AI/ML Learning Platform</h1>
+                <p>Master PyTorch, TensorFlow, and Transformers with interactive tutorials</p>
+            </div>
+            
+            <!-- Loading state -->
+            <div v-if="loading" class="loading">
+                Loading learning modules...
+            </div>
+            
+            <!-- Modules overview -->
+            <div v-if="!loading && currentView === 'modules'">
+                <div class="modules-grid">
+                    <div v-for="(module, key) in modules" :key="key" 
+                         class="module-card" 
+                         @click="selectModule(key)">
+                        <h3>{{ module.title }}</h3>
+                        <p>{{ module.description }}</p>
+                        <div style="margin-bottom: 15px;">
+                            <span v-for="lesson in module.lessons" :key="lesson.id"
+                                  :class="['difficulty-badge', 'difficulty-' + lesson.difficulty.toLowerCase()]"
+                                  style="margin-right: 5px; margin-bottom: 5px; display: inline-block;">
+                                {{ lesson.difficulty }}
+                            </span>
+                        </div>
+                        <div style="color: #666; font-size: 0.9rem;">
+                            {{ module.lessons.length }} lessons available
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Module lessons list -->
+            <div v-if="!loading && currentView === 'lessons'">
+                <div class="back-btn">
+                    <button class="btn btn-secondary" @click="backToModules">
+                        ← Back to Modules
+                    </button>
+                </div>
+                
+                <div class="lesson-view">
+                    <h2>{{ selectedModule.title }}</h2>
+                    <p style="margin-bottom: 25px; font-size: 1.1rem; color: #666;">
+                        {{ selectedModule.description }}
+                    </p>
+                    
+                    <div class="modules-grid">
+                        <div v-for="lesson in selectedModule.lessons" :key="lesson.id"
+                             class="module-card"
+                             @click="selectLesson(lesson)">
+                            <h3>{{ lesson.title }}</h3>
+                            <p>{{ lesson.content }}</p>
+                            <div>
+                                <span :class="['difficulty-badge', 'difficulty-' + lesson.difficulty.toLowerCase()]">
+                                    {{ lesson.difficulty }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Individual lesson view -->
+            <div v-if="!loading && currentView === 'lesson'">
+                <div class="back-btn">
+                    <button class="btn btn-secondary" @click="backToLessons">
+                        ← Back to Lessons
+                    </button>
+                </div>
+                
+                <div class="lesson-view">
+                    <div class="lesson-header">
+                        <h1 class="lesson-title">{{ currentLesson.title }}</h1>
+                        <span :class="['difficulty-badge', 'difficulty-' + currentLesson.difficulty.toLowerCase()]">
+                            {{ currentLesson.difficulty }}
+                        </span>
+                    </div>
+                    
+                    <div class="lesson-content">
+                        {{ currentLesson.content }}
+                    </div>
+                    
+                    <div class="code-section">
+                        <h4>📝 Interactive Code Example</h4>
+                        <div class="code-editor">
+                            <textarea v-model="editableCode" 
+                                    placeholder="Edit the code and click 'Run Code' to see the output..."></textarea>
+                        </div>
+                        
+                        <div class="buttons">
+                            <button class="btn btn-primary" @click="runCode" :disabled="isRunning">
+                                {{ isRunning ? 'Running...' : '▶️ Run Code' }}
+                            </button>
+                            <button class="btn btn-secondary" @click="resetCode">
+                                🔄 Reset Code
+                            </button>
+                            <button class="btn btn-success" @click="markCompleted">
+                                ✅ Mark as Completed
+                            </button>
+                        </div>
+                        
+                        <div v-if="codeOutput" class="output-section">
+                            <h4>💻 Output:</h4>
+                            <div class="output-text">{{ codeOutput }}</div>
+                        </div>
+                        
+                        <div v-if="lessonCompleted" class="progress-indicator">
+                            🎉 Lesson completed! Great job!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    loading: true,
+                    currentView: 'modules', // 'modules', 'lessons', 'lesson'
+                    modules: {},
+                    selectedModuleKey: null,
+                    selectedModule: null,
+                    currentLesson: null,
+                    editableCode: '',
+                    originalCode: '',
+                    codeOutput: '',
+                    isRunning: false,
+                    lessonCompleted: false,
+                    apiBase: 'http://localhost:5000/api'
+                }
+            },
+            async mounted() {
+                await this.loadModules();
+                this.loading = false;
+            },
+            methods: {
+                async loadModules() {
+                    try {
+                        const response = await axios.get(`${this.apiBase}/modules`);
+                        this.modules = response.data;
+                    } catch (error) {
+                        console.error('Error loading modules:', error);
+                        // Fallback data for demo
+                        this.modules = {
+                            pytorch: {
+                                title: "PyTorch Fundamentals",
+                                description: "Learn the basics of PyTorch for deep learning",
+                                lessons: [
+                                    {
+                                        id: 1,
+                                        title: "Tensors and Basic Operations",
+                                        content: "PyTorch tensors are fundamental building blocks.",
+                                        difficulty: "Beginner"
+                                    }
+                                ]
+                            }
+                        };
+                    }
+                },
+                
+                selectModule(moduleKey) {
+                    this.selectedModuleKey = moduleKey;
+                    this.selectedModule = this.modules[moduleKey];
+                    this.currentView = 'lessons';
+                },
+                
+                async selectLesson(lesson) {
+                    try {
+                        const response = await axios.get(
+                            `${this.apiBase}/modules/${this.selectedModuleKey}/lessons/${lesson.id}`
+                        );
+                        this.currentLesson = response.data;
+                        this.originalCode = this.currentLesson.code_example || '';
+                        this.editableCode = this.originalCode;
+                        this.currentView = 'lesson';
+                        this.codeOutput = '';
+                        this.lessonCompleted = false;
+                    } catch (error) {
+                        console.error('Error loading lesson:', error);
+                        // Fallback
+                        this.currentLesson = lesson;
+                        this.originalCode = lesson.code_example || '';
+                        this.editableCode = this.originalCode;
+                        this.currentView = 'lesson';
+                    }
+                },
+                
+                backToModules() {
+                    this.currentView = 'modules';
+                    this.selectedModule = null;
+                    this.selectedModuleKey = null;
+                },
+                
+                backToLessons() {
+                    this.currentView = 'lessons';
+                    this.currentLesson = null;
+                },
+                
+                async runCode() {
+                    this.isRunning = true;
+                    try {
+                        const response = await axios.post(`${this.apiBase}/run-code`, {
+                            code: this.editableCode,
+                            language: 'python'
+                        });
+                        this.codeOutput = response.data.output;
+                    } catch (error) {
+                        console.error('Error running code:', error);
+                        this.codeOutput = 'Error: Unable to execute code. Make sure the Flask backend is running.';
+                    }
+                    this.isRunning = false;
+                },
+                
+                resetCode() {
+                    this.editableCode = this.originalCode;
+                    this.codeOutput = '';
+                },
+                
+                async markCompleted() {
+                    try {
+                        await axios.post(`${this.apiBase}/progress`, {
+                            user_id: 'demo_user',
+                            module: this.selectedModuleKey,
+                            lesson_id: this.currentLesson.id,
+                            completed: true
+                        });
+                        this.lessonCompleted = true;
+                    } catch (error) {
+                        console.error('Error updating progress:', error);
+                        this.lessonCompleted = true; // Show success anyway for demo
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
